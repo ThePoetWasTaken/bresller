@@ -9,13 +9,14 @@ RELEASE_FLAGS := -O2
 SRC := $(wildcard src/*.c)
 OBJ := $(patsubst src/%.c,build/%.o,$(SRC))
 
-TARGET := build/basm
+TARGET := build/bass
 
 .PHONY: all debug release clean
 
 all: release
 
 run: release 
+	@clear
 	./$(TARGET)
 
 debug: CFLAGS := $(WARNINGS) $(DEBUG_FLAGS) $(INCLUDE)

@@ -1,47 +1,40 @@
 #include <stdio.h>
 
-#define STRING_IMPLEMENTATION
-#define VECTOR_IMPLEMENTATION
-#include "base.h"
+#include "bass/base.h"
 
-VECTOR(uint8_t, byte_vector)
+#include "bass/parser.h"
+#include "bass/lexer.h"
+
+DEFINE_VECTOR(token_t, tokens)
 
 int main(void) {
-    printf("Hello, World!\n");
+    string_t assembly = stralloc(128);
+    FILE *file = fopen("./playground/mov.asm", "r");
+    char buffer[1024];
 
-    string_t str = stralloc(12);
-    straddcs(&str, "Hello, World! But Another\n");
-    printf("%s", strascstr(str));
-    printf("%ld\n", str.length);
-    printf("%ld\n", str.capacity);
+    while (fread(buffer, 1, 1024, file)) {
+        straddcs(&assembly, buffer);
+    }
 
-    string_t another_str = S("asdasd");
-    straddcs(&another_str, "zz\n");
+    // info("%s", strascstr(assembly));
 
-    printf("%s", strascstr(another_str));
-    printf("%ld\n", another_str.length);
-    printf("%ld\n", another_str.capacity);
+    uint64_t offset = 0;
+    tokens_t tokens = {0};
     
-    byte_vector_t vec = {0};
-    uint8_t fav_letter = 'A';
-
-    for (uint8_t i = 'a'; i <= 'z'; i++) {
-        vecpush(vec, i);
+    for (token_t it = next_token(assembly, &offset); it.type != END; it = next_token(assembly, &offset)) {
+        vecpush(tokens, it);
     }
+    
+    const char as[] = "please help me in debug";
+    printf("%s", as);
+    fflush(stdout);
 
-    vecpop(vec);
-    vecinsert(vec, fav_letter, 5);
+    foreach(tokens, tok) {
+        if (tok->type == WHITESPACE || tok->type == END || tok->type == NEWLINE) continue;
 
-    foreach(vec, c) {
-        putchar(*c);
+        info("%d: %s", tok->type, strascstr(tok->value));
+
     }
-    putchar(0xa);
-
-    printf("Array len: %ld\n", vec.length);
-    printf("Array capacity: %ld\n", vec.capacity);
-
-    strfree(str);
-    strfree(another_str);
-
+    
     return 0;
 }
