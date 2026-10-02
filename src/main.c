@@ -10,7 +10,7 @@ DEFINE_VECTOR(token_t, tokens)
 int main(void) {
     string_t assembly = stralloc(128);
     FILE *file = fopen("./playground/mov.asm", "r");
-    char buffer[1024];
+    char buffer[1024] = {0};
 
     while (fread(buffer, 1, 1024, file)) {
         straddcs(&assembly, buffer);
@@ -25,15 +25,9 @@ int main(void) {
         vecpush(tokens, it);
     }
     
-    const char as[] = "please help me in debug";
-    printf("%s", as);
-    fflush(stdout);
 
     foreach(tokens, tok) {
-        if (tok->type == WHITESPACE || tok->type == END || tok->type == NEWLINE) continue;
-
         info("%d: %s", tok->type, strascstr(tok->value));
-
     }
     
     return 0;

@@ -44,6 +44,7 @@ bool isnotquote(char c) {
 bool isnotnewline(char c) {
     return !isnewline(c);
 }
+
 token_t exhaust(string_t text, string_t *tvalue, uint64_t *offset, bool (*ismatch)(char), tokentype_t type) {
     while (*offset < text.length && ismatch(text.ptr[*offset])) {
         straddc(tvalue, text.ptr[*offset]);
