@@ -16,6 +16,7 @@ typedef enum {
 } tokentype_t;
 
 typedef struct token {
+    uint64_t offset;
     tokentype_t type;
     string_t value;
 } token_t;

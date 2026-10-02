@@ -53,6 +53,7 @@ token_t exhaust(string_t text, string_t *tvalue, uint64_t *offset, bool (*ismatc
     }
 
     return (token_t) {
+        .offset = *offset,
         .value = *tvalue,
         .type = type
     };
@@ -64,24 +65,30 @@ token_t next_token(string_t text, uint64_t *offset) {
     while (*offset < text.length) {
         char current = text.ptr[*offset];
 
-        if (current == '"') {
+        if (!isnotquote(current)) {
+            (*offset)++; // Skips the '"'
             token_t tok = exhaust(text, &tvalue, offset, &isnotquote, LITERAL);
 
-            assert(tvalue.ptr[(*offset)++] != '"', "Closing \" was not found");
+            assert(text.ptr[(*offset)++] == '"', "Closing \" was not found");
 
             return tok;
         }
 
         if (iscomment(current)) {
+            (*offset)++; // Skips the ';'
             token_t tok = exhaust(text, &tvalue, offset, &isnotnewline, COMMENT);
 
-            assert(tvalue.ptr[(*offset)++] != '\n', "Closing \" was not found");
+            assert(text.ptr[(*offset)++] == '\n', "Closing linefeed was not found");
 
             return tok;
         }
 
         if (isword(current)) {
             return exhaust(text, &tvalue, offset, &isword, WORD);
+        }
+        
+        if (isnumber(current)) {
+            return exhaust(text, &tvalue, offset, &isnumber, NUMBER);
         }
 
         if (iswhitespace(current)) {
@@ -91,34 +98,34 @@ token_t next_token(string_t text, uint64_t *offset) {
             tok.value = (string_t){0};
             return tok;
         }
-        
-        if (isnumber(current)) {
-            return exhaust(text, &tvalue, offset, &isnumber, NUMBER);
-        }
 
         if (isop(current)) {
             straddc(&tvalue, current);
             (*offset)++;
 
-            return (token_t){.value = tvalue, .type = OPERATOR};
+            return (token_t){.offset = *offset, .value = tvalue, .type = OPERATOR};
         }
 
         if (issep(current)) {
             straddc(&tvalue, current);
             (*offset)++;
 
-            return (token_t){.value = tvalue, .type = SEPARATOR};
+            return (token_t){.offset = *offset, .value = tvalue, .type = SEPARATOR};
         }
 
         if (isnewline(current)) {
             (*offset)++;
+            strfree(tvalue);
 
-            return (token_t){.value = {0}, .type = NEWLINE};
+            return (token_t){.offset = *offset, .value = {0}, .type = NEWLINE};
         }
     }
 
+    strfree(tvalue);
+
     return (token_t) {
         .value = {0},
+        .offset = *offset,
         .type  = END
     };
 }
