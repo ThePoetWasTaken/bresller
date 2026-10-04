@@ -45,6 +45,14 @@ bool isnotnewline(char c) {
     return !isnewline(c);
 }
 
+bool isbinary(char c) {
+    return c == '0' || c == '1';
+}
+
+bool ishex(char c) {
+    return isxdigit(c);
+}
+
 token_t exhaust(string_t text, string_t *tvalue, uint64_t *offset, bool (*ismatch)(char), tokentype_t type) {
     while (*offset < text.length && ismatch(text.ptr[*offset])) {
         straddc(tvalue, text.ptr[*offset]);
@@ -57,6 +65,21 @@ token_t exhaust(string_t text, string_t *tvalue, uint64_t *offset, bool (*ismatc
         .value = *tvalue,
         .type = type
     };
+}
+
+token_t take_number(string_t text, string_t *tvalue, uint64_t *offset) {
+    (*offset)++;
+    switch (text.ptr[(*offset)++])
+    {
+        case 'x':
+            return exhaust(text, tvalue, offset, &ishex, NUMBER);
+
+        case 'b':
+            return exhaust(text, tvalue, offset, &isbinary, NUMBER);
+
+        default:
+            return exhaust(text, tvalue, offset, &isnumber, NUMBER);
+    }
 }
 
 token_t next_token(string_t text, uint64_t *offset) {
@@ -85,6 +108,10 @@ token_t next_token(string_t text, uint64_t *offset) {
 
         if (isword(current)) {
             return exhaust(text, &tvalue, offset, &isword, WORD);
+        }
+        
+        if (current == '0') {
+            return take_number(text, &tvalue, offset);
         }
         
         if (isnumber(current)) {

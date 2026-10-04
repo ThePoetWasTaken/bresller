@@ -17,7 +17,6 @@ int main(void) {
     }
     
     fclose(file);
-    // info("%s", strascstr(assembly));
 
     uint64_t offset = 0;
     tokens_t tokens = {0};
@@ -32,6 +31,7 @@ int main(void) {
 
 
     foreach(tokens, tok) {
+        if (tok->type == WHITESPACE || tok->type == NEWLINE) continue;
         info("@%ld %d: %s", tok->offset, tok->type, strascstr(tok->value));
         strfree(tok->value);
     }
