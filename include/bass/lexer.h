@@ -23,4 +23,6 @@ typedef struct token {
 
 token_t next_token(string_t text, uint64_t *offset);
 
+DEFINE_VECTOR(token_t, tokens)
+
 #endif

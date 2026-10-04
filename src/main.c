@@ -5,8 +5,6 @@
 #include "bass/parser.h"
 #include "bass/lexer.h"
 
-DEFINE_VECTOR(token_t, tokens)
-
 int main(void) {
     string_t assembly = stralloc(128);
     FILE *file = fopen("./playground/mov.asm", "r");
