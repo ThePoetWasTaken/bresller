@@ -69,15 +69,19 @@ token_t exhaust(string_t text, string_t *tvalue, uint64_t *offset, bool (*ismatc
 
 token_t take_number(string_t text, string_t *tvalue, uint64_t *offset) {
     (*offset)++;
-    switch (text.ptr[(*offset)++])
+    char c = text.ptr[(*offset)++];
+    switch (c)
     {
         case 'x':
+            straddc(tvalue, 'x');
             return exhaust(text, tvalue, offset, &ishex, NUMBER);
 
         case 'b':
+            straddc(tvalue, 'b');
             return exhaust(text, tvalue, offset, &isbinary, NUMBER);
 
         default:
+            straddc(tvalue, 'd');
             return exhaust(text, tvalue, offset, &isnumber, NUMBER);
     }
 }
@@ -110,11 +114,12 @@ token_t next_token(string_t text, uint64_t *offset) {
             return exhaust(text, &tvalue, offset, &isword, WORD);
         }
         
-        if (current == '0') {
-            return take_number(text, &tvalue, offset);
-        }
-        
         if (isnumber(current)) {
+            if (current == '0') {
+                return take_number(text, &tvalue, offset);
+            }
+
+            straddc(&tvalue, 'd');
             return exhaust(text, &tvalue, offset, &isnumber, NUMBER);
         }
 
