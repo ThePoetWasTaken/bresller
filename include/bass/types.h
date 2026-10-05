@@ -56,10 +56,4 @@ typedef struct operand {
     } value;
 } operand_t;
 
-typedef struct instruction {
-    string_t  *mnemonic;
-    string_t  *operands;
-    uint8_t     opcount;
-} instruction_t;
-
 #endif

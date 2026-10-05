@@ -2,11 +2,55 @@
 #define PARSER_H
 
 #include <stdint.h>
+#include <stdbool.h>
+
 #include "base.h"
 #include "types.h"
+#include "lexer.h"
 
-// Returns the position after the current instruction. 
-// Puts the newly created instruction in `inst`
-uint64_t next_inst(string_t *s, uint64_t offset, instruction_t *inst);
+typedef enum exprtype {
+    INVALID = 0,
+    BINOP   = 1,
+    UNOP    = 2,
+    INST    = 3
+} exprtype_t;
+
+typedef struct expr {
+    exprtype_t type;
+    token_t token;
+} expr_t;
+
+DEFINE_VECTOR(expr_t *, exprs);
+
+typedef struct binop {
+    expr_t self;
+    expr_t *left;
+    expr_t *right;
+} binop_t;
+
+typedef struct unop {
+    expr_t self;
+    expr_t *inner;
+} unop_t;
+
+typedef enum stmttype {
+    INVALID     = 0,
+    END_OF_STMT = 1,
+    INSTRUCTION = 2,
+    DIRECTIVE   = 3
+} stmttype_t;
+
+typedef struct stmt {
+    stmttype_t type;
+    token_t name;
+    tokens_t operands;
+} stmt_t;
+
+typedef struct parser {
+    uint64_t index;
+    bool reached_end;
+} parser_t;
+
+stmt_t next_stmt(parser_t *parser, tokens_t tokens);
 
 #endif
