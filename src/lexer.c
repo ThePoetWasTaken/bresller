@@ -29,8 +29,12 @@ bool isnewline(char c) {
     return c == '\n';
 }
 
+bool isnotnewline(char c) {
+    return !isnewline(c);
+}
+
 bool iswhitespace(char c) {
-    return isspace(c) && !isnewline(c);
+    return isspace(c) && isnotnewline(c);
 }
 
 bool iscomment(char c) {
@@ -39,10 +43,6 @@ bool iscomment(char c) {
 
 bool isnotquote(char c) {
     return c != '"';
-}
-
-bool isnotnewline(char c) {
-    return !isnewline(c);
 }
 
 bool isbinary(char c) {
@@ -70,6 +70,26 @@ token_t exhaust(string_t text, string_t *tvalue, uint64_t *offset, bool (*ismatc
 token_t take_number(string_t text, string_t *tvalue, uint64_t *offset) {
     (*offset)++;
     char c = text.ptr[(*offset)++];
+    
+    if (!isnumber(c) && !isword(c)) {
+        (*offset)--;
+
+        straddc(tvalue, 'd');
+        straddc(tvalue, '0');
+
+        return (token_t) {
+            .offset = *offset,
+            .value = *tvalue,
+            .type = NUMBER
+        };
+    }
+
+    if (isnumber(c)) {
+        straddc(tvalue, 'd');
+        return exhaust(text, tvalue, offset, &isnumber, NUMBER);
+        
+    }
+
     switch (c)
     {
         case 'x':
@@ -79,10 +99,13 @@ token_t take_number(string_t text, string_t *tvalue, uint64_t *offset) {
         case 'b':
             straddc(tvalue, 'b');
             return exhaust(text, tvalue, offset, &isbinary, NUMBER);
-
-        default:
+        
+        case 'd':
             straddc(tvalue, 'd');
             return exhaust(text, tvalue, offset, &isnumber, NUMBER);
+
+        default:
+            assert(false, "Unexpected token after '0'")
     }
 }
 

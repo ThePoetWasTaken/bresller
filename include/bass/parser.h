@@ -9,10 +9,10 @@
 #include "lexer.h"
 
 typedef enum exprtype {
-    INVALID = 0,
-    BINOP   = 1,
-    UNOP    = 2,
-    INST    = 3
+    INVALID_EXPR = 0,
+    BINOP        = 1,
+    UNOP         = 2,
+    INST         = 3
 } exprtype_t;
 
 typedef struct expr {
@@ -20,7 +20,6 @@ typedef struct expr {
     token_t token;
 } expr_t;
 
-DEFINE_VECTOR(expr_t *, exprs);
 
 typedef struct binop {
     expr_t self;
@@ -34,11 +33,13 @@ typedef struct unop {
 } unop_t;
 
 typedef enum stmttype {
-    INVALID     = 0,
-    END_OF_STMT = 1,
-    INSTRUCTION = 2,
-    DIRECTIVE   = 3
+    INVALID_STMT = 0,
+    END_OF_STMT  = 1,
+    INSTRUCTION  = 2,
+    DIRECTIVE    = 3
 } stmttype_t;
+
+DEFINE_VECTOR(expr_t *, exprs)
 
 typedef struct stmt {
     stmttype_t type;
@@ -46,10 +47,13 @@ typedef struct stmt {
     tokens_t operands;
 } stmt_t;
 
+DEFINE_VECTOR(stmt_t, stmts)
+
 typedef struct parser {
     uint64_t index;
     bool reached_end;
 } parser_t;
+
 
 stmt_t next_stmt(parser_t *parser, tokens_t tokens);
 
